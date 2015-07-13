@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Windows.System.Threading;
 using Windows.Foundation;
 using Windows.Devices.Gpio;
+using Windows.Devices.Enumeration;
+using Windows.Devices.I2c;
 
 
 namespace RPi_Robot
@@ -30,7 +32,7 @@ namespace RPi_Robot
         const int FR_IRLINE_PIN = 13;           // Front Right IR Line      Pin 13      GPIO Pin 27
         const int SONAR_PIN = 8;                // Ultrasonic Sensor        Pin 8       GPIO Pin 14/UART TTXD
         const int PAN_SERVO_PIN = 22;           // Left/Right Servo         Pin 22      GPIO Pin 25
-        const int TILT_SERVO_PIN = 18;          // Up/Down Servo            Pin 18      GPIO Pin 24
+        const int TILT_SERVO_PIN = 18;          // Up/Down Servo            Pin 18      GPIO Pin 24 
 
         private static GpioController gpioController = null;
         private static GpioPin frMotorPin = null;
@@ -57,6 +59,7 @@ namespace RPi_Robot
             try
             {
                 gpioController = GpioController.GetDefault();
+                
 
                 if (null != gpioController)
                 {
@@ -111,7 +114,7 @@ namespace RPi_Robot
         private static bool LeftIRObj()
         {
             GpioPinValue pinVal = flIRObjPin.Read();
-
+            
             if (pinVal == 0)
             {
                 return true;
@@ -147,7 +150,7 @@ namespace RPi_Robot
         private static bool LeftIRLine()
         {
             GpioPinValue pinVal = flIRLinePin.Read();
-
+            
             if (pinVal == 0)
             {
                 return true;
@@ -191,7 +194,7 @@ namespace RPi_Robot
             decimal stop = 0.00m;
 
             Stopwatch count = new Stopwatch();
-            long seed = Environment.TickCount;
+            long seed = Environment.TickCount; 
 
             sonarPin = gpioController.OpenPin(SONAR_PIN);
             sonarPin.SetDriveMode(GpioPinDriveMode.Output);
@@ -231,7 +234,113 @@ namespace RPi_Robot
             *  two to get the distance between the bot and a particular object
             */
         } // end GetElapsedTime
-        
+
+        //*****************************//
+        //*** SETUP PAN/TILT SERVOS ***//
+        //*****************************//
+
+        // Initialize servo variables
+        private enum ServoFunction { Pan, Tilt }; // enumeration holding the pan and the tilt servos
+        public enum ServoControl { Stop = -1, Pls1 = 0, Pls2 = 2 };
+        public static ServoControl panMove = ServoControl.Stop;
+        public static ServoControl tiltMove = ServoControl.Stop;
+
+        private static IAsyncAction run;
+        private static ulong ticksPerMs;
+
+        public static int servoSpeed = 10000;
+
+        ///<summary>
+        /// ServoInit initializes the pan and tilt servos
+        /// </summary>
+        public static void ServoInit()
+        {
+            ticksPerMs = (ulong)(Stopwatch.Frequency) / 1000;
+
+            run = Windows.System.Threading.ThreadPool.RunAsync(
+                (source) =>
+                {
+                    // create a ManualResetEvent and set it to nonsignaled
+                    ManualResetEvent mre = new ManualResetEvent(false);
+                    mre.WaitOne(1000);
+                    
+                    //TODO: Setup servo controlls in the controller class
+
+                    while (true)
+                    {
+                        GenPulse(ServoFunction.Pan);
+                        mre.WaitOne(2);
+                        GenPulse(ServoFunction.Tilt);
+                        mre.WaitOne(2);
+                    }
+                }, WorkItemPriority.High);
+
+        } // end ServoInit
+
+        /// <summary>
+        /// GenPulse sends a pulse to either the pan or tilt servo based
+        /// on the ServoFunction parameter passed
+        /// </summary>
+        /// <param name="servo"></param>
+        private static void GenPulse(ServoFunction servo)
+        {
+            ulong pulseTicks = ticksPerMs;
+
+            if (servo == ServoFunction.Pan)
+            {
+                if (panMove == ServoControl.Stop)
+                {
+                    return;
+                }
+                if (panMove == ServoControl.Pls2)
+                {
+                    pulseTicks = ticksPerMs * 2;
+                }
+                // open the panServo pin
+                panServoPin.Write(GpioPinValue.High);
+            }
+            else // tilt servo
+            {
+                if (tiltMove == ServoControl.Stop)
+                {
+                    return;
+                }
+                if (tiltMove == ServoControl.Pls2)
+                {
+                    pulseTicks = ticksPerMs * 2;
+                }
+                // open the tiltServo pin
+                tiltServoPin.Write(GpioPinValue.High);
+            }
+
+            // Keep track of time--Don't close GPIO pins until elapsedTime
+            // is greater than (20)ticksPerMs or pulseTicks
+            ulong elapsedTime;
+            ulong startTime = (ulong)(MainPage.stopwatch.ElapsedTicks);
+
+            while (true)
+            {
+                // update elapsed time by subracting ElapsedTicks from the
+                // ElapsedTicks recorded prior to entering the loop
+                elapsedTime = (ulong)(MainPage.stopwatch.ElapsedTicks) - startTime;
+
+                if (elapsedTime > (20 * ticksPerMs) || elapsedTime > pulseTicks)
+                {
+                    break;
+                }
+            }
+
+            // Close pins
+            if (servo == ServoFunction.Pan)
+            {
+                panServoPin.Write(GpioPinValue.Low);
+            }
+            else // ServoFunction.Tilt
+            {
+                tiltServoPin.Write(GpioPinValue.Low);
+            }
+        } // end GenPulse
+
 
     } // end Class InitRobot
 }
