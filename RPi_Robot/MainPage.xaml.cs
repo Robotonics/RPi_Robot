@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -34,6 +35,13 @@ namespace RPi_Robot
 
             // initialize GPIO components
             InitRobot.GpioInit();
+
+            // activate the IR sensor display
+            ObjectDetection();
+
+            // begin returning sonar data
+            GetDistance();
+
 
         }
 
@@ -136,5 +144,80 @@ namespace RPi_Robot
                     break;
             }
         }
+
+        public static void ObjectDetection()
+        {
+            MainPage objDetect = new MainPage();
+            SolidColorBrush detectedRed = new SolidColorBrush();
+            SolidColorBrush noObjWhite = new SolidColorBrush();
+            detectedRed.Color = Color.FromArgb(255, 0, 0, 1);
+            noObjWhite.Color = Color.FromArgb(244, 244, 245, 1);
+
+            bool lastL = InitRobot.LeftIRObj();
+            bool lastR = InitRobot.RightIRObj();
+
+            while (true)
+            {
+                bool newL = InitRobot.LeftIRObj();
+                bool newR = InitRobot.RightIRObj();
+
+                if (newL != lastL || newR != lastR)
+                {
+                    if (newL == true)
+                    {
+                        objDetect.leftObjIndicator.Fill = detectedRed;
+                    }
+                    else
+                    {
+                        objDetect.leftObjIndicator.Fill = noObjWhite;
+                    }
+                    if (newR == true)
+                    {
+                        objDetect.rightObjIndicator.Fill = detectedRed;
+                    }
+                    else
+                    {
+                        objDetect.rightObjIndicator.Fill = noObjWhite;
+                    }
+                }
+
+                lastL = newL;
+                lastR = newR;
+                new System.Threading.ManualResetEvent(false).WaitOne(100); // pause thread for 0.1 seconds
+            }
+        }
+
+        public void GetDistance()
+        {
+            decimal eTime = InitRobot.GetElapsedTime();
+            decimal dist = eTime * 13503.937m; // elapsed time * the speed of sound in inches
+            dist = dist / 2;
+
+            while (true)
+            {
+                decimal newTime = InitRobot.GetElapsedTime();
+                decimal newDist = newTime * 13503.937m;
+                newDist = newDist / 2;
+
+                if (newDist != dist)
+                {
+                    var ftAndIn = PrepareOutput(newDist);
+                    int feet = ftAndIn.Key;
+                    decimal inches = ftAndIn.Value;
+                    DistanceText = feet + "ft. " + inches + "in.";
+                }
+
+                dist = newDist;
+                new System.Threading.ManualResetEvent(false).WaitOne(100);
+            }
+        }
+
+        public string DistanceText { get; set; }
+
+        static KeyValuePair<int,decimal> PrepareOutput(decimal inches)
+        {
+            return new KeyValuePair<int, decimal>((int)inches / 12, inches % 12);
+        }
+
     }
 }

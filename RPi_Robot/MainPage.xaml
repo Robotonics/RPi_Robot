@@ -35,7 +35,7 @@
                     <Rectangle x:Name="rightObjIndicator" Fill="#FFF4F4F5" Height="25" Stroke="Black" Width="90" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" HorizontalAlignment="Right" Margin="0"/>
                 </StackPanel>
                 <TextBlock x:Name="sonarLbl" FontSize="16" TextWrapping="Wrap" Text="Distance:" Margin="0,0,0,10"/>
-                <TextBlock x:Name="distanceReadingLbl" FontSize="16" TextWrapping="Wrap" Text="4ft 3in"/>
+                <TextBlock x:Name="distanceReadingLbl" FontSize="16" TextWrapping="Wrap" Text="{Binding DistanceText}"/>
 
 
             </StackPanel>

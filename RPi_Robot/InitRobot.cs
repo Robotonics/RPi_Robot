@@ -116,7 +116,7 @@ namespace RPi_Robot
         /// LeftIRObj reads the current value
         /// of the left IR object sensor.
         /// </summary>
-        private static bool LeftIRObj()
+        public static bool LeftIRObj()
         {
             GpioPinValue pinVal = flIRObjPin.Read();
             
@@ -134,7 +134,7 @@ namespace RPi_Robot
         /// RightIRObj reads the current value
         /// of the left IR object sensor.
         /// </summary>
-        private static bool RightIRObj()
+        public static bool RightIRObj()
         {
             GpioPinValue pinVal = frIRObjPin.Read();
 
@@ -152,7 +152,7 @@ namespace RPi_Robot
         /// LeftIRLine reads the current value
         /// of the left IR line sensor
         /// </summary>
-        private static bool LeftIRLine()
+        public static bool LeftIRLine()
         {
             GpioPinValue pinVal = flIRLinePin.Read();
             
@@ -170,7 +170,7 @@ namespace RPi_Robot
         /// RightIRLine reads the current value
         /// of the right IR line sensor
         /// </summary>
-        private static bool RightIRLine()
+        public static bool RightIRLine()
         {
             GpioPinValue pinVal = frIRLinePin.Read();
 
@@ -193,7 +193,7 @@ namespace RPi_Robot
         /// send out a pulse and records the time it
         /// takes to be read back in by the sensor
         /// </summary>
-        private static decimal GetElapsedTime()
+        public static decimal GetElapsedTime()
         {
             decimal start = 0.00m;
             decimal stop = 0.00m;
