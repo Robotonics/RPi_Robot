@@ -7,7 +7,47 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RequestedTheme="Dark">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="250" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="1" KeyDown="CmdKeyDown" KeyUp="CmdKeyUp">
+                <Button x:Name="stopBtn" Content="STOP" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" Height="73" Width="97" Margin="127,0,126,0" Click="stopBtn_Click"/>
+                <Button x:Name="fwdBtn" Content="FORWARD" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="Green"  Width="97" Margin="0,45,0,0" Click="fwdBtn_Click"/>
+                <Button x:Name="rightBtn" Content="RIGHT" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Green" Height="73" Width="61" Margin="0,0,55,0" Click="rightBtn_Click"/>
+                <Button x:Name="leftBtn" Content="LEFT" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="Green" Height="73" Width="61" Margin="55,0,0,0" Click="leftBtn_Click"/> 
+                <Button x:Name="revBtn" Content="REVERSE" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="Green" Width="97" Margin="0,0,0,45" Click="revBtn_Click"/>
+            </Grid>
+            <StackPanel Grid.Row="1" Grid.Column="1">
+                <TextBlock x:Name="statusLbl" FontSize="18" TextWrapping="Wrap" Text="Status:" Margin="0,0,0,10"/>
+                <TextBlock x:Name="IRObjLbl" FontSize="16" TextWrapping="Wrap" Text="IR Obj Detection:" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Rectangle x:Name="leftObjIndicator" Fill="#FFF4F4F5" Height="25" Stroke="Black" Width="90" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" HorizontalAlignment="Left" Margin="0,0,10,0"/>
+                    <Rectangle x:Name="rightObjIndicator" Fill="#FFF4F4F5" Height="25" Stroke="Black" Width="90" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" HorizontalAlignment="Right" Margin="0"/>
+                </StackPanel>
+                <TextBlock x:Name="sonarLbl" FontSize="16" TextWrapping="Wrap" Text="Distance:" Margin="0,0,0,10"/>
+                <TextBlock x:Name="distanceReadingLbl" FontSize="16" TextWrapping="Wrap" Text="4ft 3in"/>
 
+
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="2">
+                <TextBlock x:Name="testLbl" FontSize="18" TextWrapping="Wrap" Text="Tests:"/>
+                <StackPanel VerticalAlignment="Center" Height="223">
+                    <Button x:Name="IRTestBtn" Content="IR Test" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,10,5,10" Width="95"/>
+                    <Button x:Name="sonarTestBtn" Content="Sonar Test" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,10,5,10" Width="95"/>
+                    <Button x:Name="servoTestBtn" Content="Servo Test" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,10,5,10" Width="95"/>
+                    <Button x:Name="motorTestBtn" Content="Motor Test" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,10,5,10" Width="95"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

@@ -12,6 +12,8 @@ using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 
 
+
+
 namespace RPi_Robot
 {
     /// <summary>
@@ -21,6 +23,8 @@ namespace RPi_Robot
     /// </summary>
     class InitRobot
     {
+        
+
         // Initialize component pin values
         const int FR_DCMOTOR_PIN = 24;          // Front Right DC Motor     Pin 24      GPIO Pin 8/SPI CE 0
         const int FL_DCMOTOR_PIN = 19;          // Front Left DC Motor      Pin 19      GPIO Pin 10/SPI MOSI
@@ -47,6 +51,7 @@ namespace RPi_Robot
         private static GpioPin panServoPin = null;
         private static GpioPin tiltServoPin = null;
 
+
         private static bool GpioInitialized = false;
 
         /// <summary>
@@ -54,7 +59,7 @@ namespace RPi_Robot
         /// activated, and then 'SetDriveMode' is used to signal whether the
         /// component provides input or output.
         /// </summary>
-        private static void GpioInit()
+        public static void GpioInit()
         {
             try
             {
@@ -71,7 +76,7 @@ namespace RPi_Robot
 
                     blMotorPin = gpioController.OpenPin(BL_DCMOTOR_PIN);
                     blMotorPin.SetDriveMode(GpioPinDriveMode.Output);
-
+                    
                     brMotorPin = gpioController.OpenPin(BR_DCMOTOR_PIN);
                     brMotorPin.SetDriveMode(GpioPinDriveMode.Output);
 
@@ -248,7 +253,9 @@ namespace RPi_Robot
         private static IAsyncAction run;
         private static ulong ticksPerMs;
 
-        public static int servoSpeed = 10000;
+        
+
+        //public static int servoSpeed = 10000;
 
         ///<summary>
         /// ServoInit initializes the pan and tilt servos
@@ -340,6 +347,50 @@ namespace RPi_Robot
                 tiltServoPin.Write(GpioPinValue.Low);
             }
         } // end GenPulse
+
+        //***********************//
+        //*** SETUP DC Motors ***//
+        //***********************//
+        
+        public static void Stop()
+        {
+            frMotorPin.Write(GpioPinValue.Low);
+            flMotorPin.Write(GpioPinValue.Low);
+            brMotorPin.Write(GpioPinValue.Low);
+            blMotorPin.Write(GpioPinValue.Low);
+        }
+
+        public static void Forward()
+        {
+            frMotorPin.Write(GpioPinValue.High);
+            flMotorPin.Write(GpioPinValue.High);
+            brMotorPin.Write(GpioPinValue.Low);
+            blMotorPin.Write(GpioPinValue.Low);
+        }
+
+        public static void Reverse()
+        {
+            frMotorPin.Write(GpioPinValue.Low);
+            flMotorPin.Write(GpioPinValue.Low);
+            brMotorPin.Write(GpioPinValue.High);
+            blMotorPin.Write(GpioPinValue.High);
+        }
+        public static void SpinLeft()
+        {
+            frMotorPin.Write(GpioPinValue.High);
+            flMotorPin.Write(GpioPinValue.Low);
+            brMotorPin.Write(GpioPinValue.Low);
+            blMotorPin.Write(GpioPinValue.High);
+        }
+
+        public static void SpinRight()
+        {
+            frMotorPin.Write(GpioPinValue.Low);
+            flMotorPin.Write(GpioPinValue.High);
+            brMotorPin.Write(GpioPinValue.High);
+            blMotorPin.Write(GpioPinValue.Low);
+        }
+
 
 
     } // end Class InitRobot
