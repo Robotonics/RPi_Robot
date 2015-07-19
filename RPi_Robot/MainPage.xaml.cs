@@ -36,38 +36,59 @@ namespace RPi_Robot
             // initialize GPIO components
             InitRobot.GpioInit();
 
+            // initialize Servo GPIO component
+            InitRobot.ServoInit();
+
             // activate the IR sensor display
             ObjectDetection();
 
             // begin returning sonar data
             GetDistance();
-
-
         }
 
         private void stopBtn_Click(object sender, RoutedEventArgs e)
         {
-            ControlCmds(Commands.Stop);
+            ControlCmds(MotorCommands.Stop);
         }
 
         private void fwdBtn_Click(object sender, RoutedEventArgs e)
         {
-            ControlCmds(Commands.Forward);
+            ControlCmds(MotorCommands.Forward);
         }
 
         private void rightBtn_Click(object sender, RoutedEventArgs e)
         {
-            ControlCmds(Commands.Right);
+            ControlCmds(MotorCommands.Right);
         }
 
         private void leftBtn_Click(object sender, RoutedEventArgs e)
         {
-            ControlCmds(Commands.Left);
+            ControlCmds(MotorCommands.Left);
         }
 
         private void revBtn_Click(object sender, RoutedEventArgs e)
         {
-            ControlCmds(Commands.Reverse);
+            ControlCmds(MotorCommands.Reverse);
+        }
+
+        private void tiltUpBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ServoCmds(ServoCommands.TiltUp);
+        }
+
+        private void tiltDwnBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ServoCmds(ServoCommands.TiltDown);
+        }
+
+        private void panLeftBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ServoCmds(ServoCommands.PanLeft);
+        }
+
+        private void panRightBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ServoCmds(ServoCommands.PanRight);
         }
 
 
@@ -89,6 +110,11 @@ namespace RPi_Robot
             VKeyRobotInput(Windows.System.VirtualKey.Space);
         }
 
+        private void CmdKeyUp_S(object sender, KeyRoutedEventArgs e)
+        {
+            VKeyRobotInput(Windows.System.VirtualKey.Enter);
+        }
+
         static void VKeyRobotInput(Windows.System.VirtualKey vkey)
         {
             // Keyboard input for robot commands are:
@@ -102,47 +128,90 @@ namespace RPi_Robot
             switch(vkey)
             {
                 case Windows.System.VirtualKey.W:
-                    ControlCmds(Commands.Forward);
+                    ControlCmds(MotorCommands.Forward);
                     break;
                 case Windows.System.VirtualKey.S:
-                    ControlCmds(Commands.Reverse);
+                    ControlCmds(MotorCommands.Reverse);
                     break;
                 case Windows.System.VirtualKey.A:
-                    ControlCmds(Commands.Left);
+                    ControlCmds(MotorCommands.Left);
                     break;
                 case Windows.System.VirtualKey.D:
-                    ControlCmds(Commands.Right);
+                    ControlCmds(MotorCommands.Right);
+                    break;
+
+                case Windows.System.VirtualKey.Up:
+                    ServoCmds(ServoCommands.TiltUp);
+                    break;
+                case Windows.System.VirtualKey.Down:
+                    ServoCmds(ServoCommands.TiltDown);
+                    break;
+                case Windows.System.VirtualKey.Left:
+                    ServoCmds(ServoCommands.PanLeft);
+                    break;
+                case Windows.System.VirtualKey.Right:
+                    ServoCmds(ServoCommands.PanRight);
                     break;
                 default:
                 case Windows.System.VirtualKey.Space:
-                    ControlCmds(Commands.Stop);
+                    ControlCmds(MotorCommands.Stop);
+                    break;
+                case Windows.System.VirtualKey.Enter:
+                    ServoCmds(ServoCommands.Stop);
                     break;
             }
         }
 
-        public enum Commands { Stop, Forward, Left, Right, Reverse };
+        public enum MotorCommands { Stop, Forward, Left, Right, Reverse };
+        public enum ServoCommands { TiltUp, TiltDown, PanLeft, PanRight, Stop };
 
-        public static void ControlCmds(Commands cmd)
+        public static void ControlCmds(MotorCommands cmd)
         {
             switch(cmd)
             {
-                case Commands.Forward:
+                case MotorCommands.Forward:
                     InitRobot.Forward();
                     break;
-                case Commands.Reverse:
+                case MotorCommands.Reverse:
                     InitRobot.Reverse();
                     break;
-                case Commands.Left:
+                case MotorCommands.Left:
                     InitRobot.SpinLeft();
                     break;
-                case Commands.Right:
+                case MotorCommands.Right:
                     InitRobot.SpinRight();
                     break;
                 default:
-                case Commands.Stop:
+                case MotorCommands.Stop:
                     InitRobot.Stop();
                     break;
             }
+        }
+
+        public static void ServoCmds(ServoCommands cmd)
+        {
+            switch (cmd)
+            {
+                case ServoCommands.TiltUp:
+                    InitRobot.tiltMove = InitRobot.ServoControl.Pls1;
+                    break;
+                case ServoCommands.TiltDown:
+                    InitRobot.tiltMove = InitRobot.ServoControl.Pls2;
+                    break;
+                case ServoCommands.PanLeft:
+                    InitRobot.panMove = InitRobot.ServoControl.Pls1;
+                    break;
+                case ServoCommands.PanRight:
+                    InitRobot.panMove = InitRobot.ServoControl.Pls2;
+                    break;
+                default:
+                case ServoCommands.Stop:
+                    InitRobot.tiltMove = InitRobot.ServoControl.Stop;
+                    InitRobot.panMove = InitRobot.ServoControl.Stop;
+                    break;
+                
+            }
+
         }
 
         public static void ObjectDetection()
@@ -218,6 +287,5 @@ namespace RPi_Robot
         {
             return new KeyValuePair<int, decimal>((int)inches / 12, inches % 12);
         }
-
     }
 }

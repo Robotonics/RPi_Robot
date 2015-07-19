@@ -15,6 +15,7 @@
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -36,18 +37,13 @@
                 </StackPanel>
                 <TextBlock x:Name="sonarLbl" FontSize="16" TextWrapping="Wrap" Text="Distance:" Margin="0,0,0,10"/>
                 <TextBlock x:Name="distanceReadingLbl" FontSize="16" TextWrapping="Wrap" Text="{Binding DistanceText}"/>
-
-
             </StackPanel>
-            <StackPanel Grid.Row="1" Grid.Column="2">
-                <TextBlock x:Name="testLbl" FontSize="18" TextWrapping="Wrap" Text="Tests:"/>
-                <StackPanel VerticalAlignment="Center" Height="223">
-                    <Button x:Name="IRTestBtn" Content="IR Test" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,10,5,10" Width="95"/>
-                    <Button x:Name="sonarTestBtn" Content="Sonar Test" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,10,5,10" Width="95"/>
-                    <Button x:Name="servoTestBtn" Content="Servo Test" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,10,5,10" Width="95"/>
-                    <Button x:Name="motorTestBtn" Content="Motor Test" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,10,5,10" Width="95"/>
-                </StackPanel>
-            </StackPanel>
+            <Grid Grid.Row="1" Grid.Column="5" KeyDown="CmdKeyDown" KeyUp="CmdKeyUp_S" >
+                <Button x:Name="tiltUpBtn" Content="Tilt Up" HorizontalAlignment="Stretch" VerticalAlignment="Top" Foreground="DeepSkyBlue" BorderBrush="Black" Click="tiltUpBtn_Click"/>
+                <Button x:Name="tiltDwnBtn" Content="Tilt Down" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Foreground="DeepSkyBlue" Margin="0" BorderBrush="Black" Click="tiltDwnBtn_Click"/>
+                <Button x:Name="panLeftBtn" Content="Pan Left" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="DeepSkyBlue" Margin="0,32,100,32" BorderBrush="Black" Click="panLeftBtn_Click"/>
+                <Button x:Name="panRightBtn" Content="Pan Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="DeepSkyBlue" Margin="100,32,0,32" BorderBrush="Black" Click="panRightBtn_Click"/> 
+             </Grid>
         </Grid>
     </Grid>
 </Page>

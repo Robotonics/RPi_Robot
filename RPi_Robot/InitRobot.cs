@@ -270,8 +270,8 @@ namespace RPi_Robot
                     // create a ManualResetEvent and set it to nonsignaled
                     ManualResetEvent mre = new ManualResetEvent(false);
                     mre.WaitOne(1000);
-                    
-                    //TODO: Setup servo controlls in the controller class
+
+                    MainPage.ServoCmds(MainPage.ServoCommands.Stop);
 
                     while (true)
                     {
