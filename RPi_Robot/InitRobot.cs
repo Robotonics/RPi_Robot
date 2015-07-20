@@ -23,20 +23,23 @@ namespace RPi_Robot
     /// </summary>
     class InitRobot
     {
-        
-
         // Initialize component pin values
-        const int FR_DCMOTOR_PIN = 24;          // Front Right DC Motor     Pin 24      GPIO Pin 8/SPI CE 0
-        const int FL_DCMOTOR_PIN = 19;          // Front Left DC Motor      Pin 19      GPIO Pin 10/SPI MOSI
-        const int BR_DCMOTOR_PIN = 26;          // Back Right DC Motor      Pin 26      GPIO Pin 7/SPI CE 1
-        const int BL_DCMOTOR_PIN = 21;          // Back Left DC Motor       Pin 21      GPIO Pin 9/SPI MISO
-        const int FL_IROBJ_PIN = 7;             // Front Left IR Object     Pin 7       GPIO Pin 4/Clock
-        const int FR_IROBJ_PIN = 11;            // Front Right IR Object    Pin 11      GPIO Pin 17
-        const int FL_IRLINE_PIN = 12;           // Front Left IR Line       Pin 12      GPIO Pin 18/PCM CLK
-        const int FR_IRLINE_PIN = 13;           // Front Right IR Line      Pin 13      GPIO Pin 27
-        const int SONAR_PIN = 8;                // Ultrasonic Sensor        Pin 8       GPIO Pin 14/UART TTXD
-        const int PAN_SERVO_PIN = 22;           // Left/Right Servo         Pin 22      GPIO Pin 25
-        const int TILT_SERVO_PIN = 18;          // Up/Down Servo            Pin 18      GPIO Pin 24 
+        const int FR_DCMOTOR_PIN = 24;  //24::24        Front Right DC Motor     Pin 24      GPIO Pin 8/SPI CE 0
+        const int FL_DCMOTOR_PIN = 26;  //19::26        Front Left DC Motor      Pin 26      GPIO Pin 7/SPI CE1
+        const int BR_DCMOTOR_PIN = 35;  //26::35        Back Right DC Motor      Pin 19      GPIO Pin 10/SPI MOSI
+        const int BL_DCMOTOR_PIN = 23;  //21::23        Back Left DC Motor       Pin 21      GPIO Pin 9/SPI MISO
+        const int FL_IROBJ_PIN = 12;    //7::12         Front Left IR Object     Pin 7       GPIO Pin 4/Clock
+        const int FR_IROBJ_PIN = 11;    //11::13        Front Right IR Object    Pin 11      GPIO Pin 17
+        const int SONAR_PIN = 16;       //8::16         Ultrasonic Sensor        Pin 8       GPIO Pin 14/UART TTXD
+
+        // REMOVING IR LINE SENSORS
+        // and Servos due to lack of
+        // available pins
+        //const int FL_IRLINE_PIN = 12;           // Front Left IR Line       Pin 12      GPIO Pin 18/PCM CLK
+        //const int FR_IRLINE_PIN = 13;           // Front Right IR Line      Pin 13      GPIO Pin 27
+        // const int PAN_SERVO_PIN = 22;          // Left/Right Servo         Pin 22      GPIO Pin 25
+        //const int TILT_SERVO_PIN = 18;          // Up/Down Servo            Pin 18      GPIO Pin 24 
+
 
         private static GpioController gpioController = null;
         private static GpioPin frMotorPin = null;
@@ -45,11 +48,11 @@ namespace RPi_Robot
         private static GpioPin blMotorPin = null;
         private static GpioPin flIRObjPin = null;
         private static GpioPin frIRObjPin = null;
-        private static GpioPin flIRLinePin = null;
-        private static GpioPin frIRLinePin = null;
+        //private static GpioPin flIRLinePin = null;
+        //private static GpioPin frIRLinePin = null;
         private static GpioPin sonarPin = null;
-        private static GpioPin panServoPin = null;
-        private static GpioPin tiltServoPin = null;
+        //private static GpioPin panServoPin = null;
+        //private static GpioPin tiltServoPin = null;
 
 
         private static bool GpioInitialized = false;
@@ -59,6 +62,7 @@ namespace RPi_Robot
         /// activated, and then 'SetDriveMode' is used to signal whether the
         /// component provides input or output.
         /// </summary>
+        /// 
         public static void GpioInit()
         {
             try
@@ -85,19 +89,19 @@ namespace RPi_Robot
 
                     frIRObjPin = gpioController.OpenPin(FR_IROBJ_PIN);
                     frIRObjPin.SetDriveMode(GpioPinDriveMode.Input);
-
+                    /*
                     flIRLinePin = gpioController.OpenPin(FL_IRLINE_PIN);
                     flIRLinePin.SetDriveMode(GpioPinDriveMode.Input);
 
                     frIRLinePin = gpioController.OpenPin(FR_IRLINE_PIN);
                     frIRLinePin.SetDriveMode(GpioPinDriveMode.Input);
-
+                    
                     panServoPin = gpioController.OpenPin(PAN_SERVO_PIN);
                     panServoPin.SetDriveMode(GpioPinDriveMode.Output);
 
                     tiltServoPin = gpioController.OpenPin(TILT_SERVO_PIN);
                     tiltServoPin.SetDriveMode(GpioPinDriveMode.Output);
-
+                    */
                     // set GpioInitialized to true if successful
                     GpioInitialized = true;
                 }
@@ -147,7 +151,7 @@ namespace RPi_Robot
                 return false;
             }
         } // end RightIRObj
-
+        /*
         /// <summary>
         /// LeftIRLine reads the current value
         /// of the left IR line sensor
@@ -183,7 +187,7 @@ namespace RPi_Robot
                 return false;
             }
         } // end RightIRLine
-
+        */
         //*******************************//
         //*** SETUP ULTRASONIC SENSOR ***//
         //*******************************//
@@ -239,114 +243,6 @@ namespace RPi_Robot
             *  two to get the distance between the bot and a particular object
             */
         } // end GetElapsedTime
-
-        //*****************************//
-        //*** SETUP PAN/TILT SERVOS ***//
-        //*****************************//
-
-        // Initialize servo variables
-        private enum ServoFunction { Pan, Tilt }; // enumeration holding the pan and the tilt servos
-        public enum ServoControl { Stop = -1, Pls1 = 0, Pls2 = 2 };
-        public static ServoControl panMove = ServoControl.Stop;
-        public static ServoControl tiltMove = ServoControl.Stop;
-
-        private static IAsyncAction run;
-        private static ulong ticksPerMs;
-
-        
-
-        //public static int servoSpeed = 10000;
-
-        ///<summary>
-        /// ServoInit initializes the pan and tilt servos
-        /// </summary>
-        public static void ServoInit()
-        {
-            ticksPerMs = (ulong)(Stopwatch.Frequency) / 1000;
-
-            run = Windows.System.Threading.ThreadPool.RunAsync(
-                (source) =>
-                {
-                    // create a ManualResetEvent and set it to nonsignaled
-                    ManualResetEvent mre = new ManualResetEvent(false);
-                    mre.WaitOne(1000);
-
-                    MainPage.ServoCmds(MainPage.ServoCommands.Stop);
-
-                    while (true)
-                    {
-                        GenPulse(ServoFunction.Pan);
-                        mre.WaitOne(2);
-                        GenPulse(ServoFunction.Tilt);
-                        mre.WaitOne(2);
-                    }
-                }, WorkItemPriority.High);
-
-        } // end ServoInit
-
-        /// <summary>
-        /// GenPulse sends a pulse to either the pan or tilt servo based
-        /// on the ServoFunction parameter passed
-        /// </summary>
-        /// <param name="servo"></param>
-        private static void GenPulse(ServoFunction servo)
-        {
-            ulong pulseTicks = ticksPerMs;
-
-            if (servo == ServoFunction.Pan)
-            {
-                if (panMove == ServoControl.Stop)
-                {
-                    return;
-                }
-                if (panMove == ServoControl.Pls2)
-                {
-                    pulseTicks = ticksPerMs * 2;
-                }
-                // open the panServo pin
-                panServoPin.Write(GpioPinValue.High);
-            }
-            else // tilt servo
-            {
-                if (tiltMove == ServoControl.Stop)
-                {
-                    return;
-                }
-                if (tiltMove == ServoControl.Pls2)
-                {
-                    pulseTicks = ticksPerMs * 2;
-                }
-                // open the tiltServo pin
-                tiltServoPin.Write(GpioPinValue.High);
-            }
-
-            // Keep track of time--Don't close GPIO pins until elapsedTime
-            // is greater than (20)ticksPerMs or pulseTicks
-            ulong elapsedTime;
-            ulong startTime = (ulong)(MainPage.stopwatch.ElapsedTicks);
-
-            while (true)
-            {
-                // update elapsed time by subracting ElapsedTicks from the
-                // ElapsedTicks recorded prior to entering the loop
-                elapsedTime = (ulong)(MainPage.stopwatch.ElapsedTicks) - startTime;
-
-                if (elapsedTime > (20 * ticksPerMs) || elapsedTime > pulseTicks)
-                {
-                    break;
-                }
-            }
-
-            // Close pins
-            if (servo == ServoFunction.Pan)
-            {
-                panServoPin.Write(GpioPinValue.Low);
-            }
-            else // ServoFunction.Tilt
-            {
-                tiltServoPin.Write(GpioPinValue.Low);
-            }
-        } // end GenPulse
 
         //***********************//
         //*** SETUP DC Motors ***//

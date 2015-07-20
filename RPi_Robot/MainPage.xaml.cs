@@ -15,6 +15,9 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI;
+using Windows.Devices.Gpio;
+using Windows.Devices.Enumeration;
+using Windows.Devices.I2c;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -27,17 +30,16 @@ namespace RPi_Robot
     public sealed partial class MainPage : Page
     {
         public static Stopwatch stopwatch;
+
         public MainPage()
         {
             this.InitializeComponent();
             stopwatch = new Stopwatch();
             stopwatch.Start();
 
+            //InitRobot.noInit();
             // initialize GPIO components
             InitRobot.GpioInit();
-
-            // initialize Servo GPIO component
-            InitRobot.ServoInit();
 
             // activate the IR sensor display
             ObjectDetection();
@@ -71,27 +73,6 @@ namespace RPi_Robot
             ControlCmds(MotorCommands.Reverse);
         }
 
-        private void tiltUpBtn_Click(object sender, RoutedEventArgs e)
-        {
-            ServoCmds(ServoCommands.TiltUp);
-        }
-
-        private void tiltDwnBtn_Click(object sender, RoutedEventArgs e)
-        {
-            ServoCmds(ServoCommands.TiltDown);
-        }
-
-        private void panLeftBtn_Click(object sender, RoutedEventArgs e)
-        {
-            ServoCmds(ServoCommands.PanLeft);
-        }
-
-        private void panRightBtn_Click(object sender, RoutedEventArgs e)
-        {
-            ServoCmds(ServoCommands.PanRight);
-        }
-
-
         /// <summary>
         /// Key down and key up functions passes user input to the VKeyRobotInput function.
         /// Key down passes allong the acctual command provided by the user. After the user
@@ -108,11 +89,6 @@ namespace RPi_Robot
         private void CmdKeyUp(object sender, KeyRoutedEventArgs e)
         {
             VKeyRobotInput(Windows.System.VirtualKey.Space);
-        }
-
-        private void CmdKeyUp_S(object sender, KeyRoutedEventArgs e)
-        {
-            VKeyRobotInput(Windows.System.VirtualKey.Enter);
         }
 
         static void VKeyRobotInput(Windows.System.VirtualKey vkey)
@@ -139,31 +115,15 @@ namespace RPi_Robot
                 case Windows.System.VirtualKey.D:
                     ControlCmds(MotorCommands.Right);
                     break;
-
-                case Windows.System.VirtualKey.Up:
-                    ServoCmds(ServoCommands.TiltUp);
-                    break;
-                case Windows.System.VirtualKey.Down:
-                    ServoCmds(ServoCommands.TiltDown);
-                    break;
-                case Windows.System.VirtualKey.Left:
-                    ServoCmds(ServoCommands.PanLeft);
-                    break;
-                case Windows.System.VirtualKey.Right:
-                    ServoCmds(ServoCommands.PanRight);
-                    break;
                 default:
                 case Windows.System.VirtualKey.Space:
                     ControlCmds(MotorCommands.Stop);
-                    break;
-                case Windows.System.VirtualKey.Enter:
-                    ServoCmds(ServoCommands.Stop);
                     break;
             }
         }
 
         public enum MotorCommands { Stop, Forward, Left, Right, Reverse };
-        public enum ServoCommands { TiltUp, TiltDown, PanLeft, PanRight, Stop };
+        
 
         public static void ControlCmds(MotorCommands cmd)
         {
@@ -186,32 +146,6 @@ namespace RPi_Robot
                     InitRobot.Stop();
                     break;
             }
-        }
-
-        public static void ServoCmds(ServoCommands cmd)
-        {
-            switch (cmd)
-            {
-                case ServoCommands.TiltUp:
-                    InitRobot.tiltMove = InitRobot.ServoControl.Pls1;
-                    break;
-                case ServoCommands.TiltDown:
-                    InitRobot.tiltMove = InitRobot.ServoControl.Pls2;
-                    break;
-                case ServoCommands.PanLeft:
-                    InitRobot.panMove = InitRobot.ServoControl.Pls1;
-                    break;
-                case ServoCommands.PanRight:
-                    InitRobot.panMove = InitRobot.ServoControl.Pls2;
-                    break;
-                default:
-                case ServoCommands.Stop:
-                    InitRobot.tiltMove = InitRobot.ServoControl.Stop;
-                    InitRobot.panMove = InitRobot.ServoControl.Stop;
-                    break;
-                
-            }
-
         }
 
         public static void ObjectDetection()
