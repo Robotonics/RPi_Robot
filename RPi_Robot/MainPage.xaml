@@ -30,13 +30,14 @@
             </Grid>
             <StackPanel Grid.Row="1" Grid.Column="1">
                 <TextBlock x:Name="statusLbl" FontSize="18" TextWrapping="Wrap" Text="Status:" Margin="0,0,0,10"/>
-                <TextBlock x:Name="IRObjLbl" FontSize="16" TextWrapping="Wrap" Text="IR Obj Detection:" Margin="0,0,0,10"/>
+                <Button x:Name="IRObjBtn" Content="IR Obj Detection" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,10" Click="IRObjBtn_Click"/>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <Rectangle x:Name="leftObjIndicator" Fill="#FFF4F4F5" Height="25" Stroke="Black" Width="90" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" HorizontalAlignment="Left" Margin="0,0,10,0"/>
                     <Rectangle x:Name="rightObjIndicator" Fill="#FFF4F4F5" Height="25" Stroke="Black" Width="90" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" HorizontalAlignment="Right" Margin="0"/>
                 </StackPanel>
-                <TextBlock x:Name="sonarLbl" FontSize="16" TextWrapping="Wrap" Text="Distance:" Margin="0,0,0,10"/>
+                <Button x:Name="sonarBtn" Content="Distance" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,10" Click="sonarBtn_Click"/>
                 <TextBlock x:Name="distanceReadingLbl" FontSize="16" TextWrapping="Wrap" Text="{Binding DistanceText}"/>
+                
             </StackPanel>
             <Grid Grid.Row="1" Grid.Column="5" KeyDown="CmdKeyDown" KeyUp="CmdKeyUp_S" >
                 <Button x:Name="tiltUpBtn" Content="Tilt Up" HorizontalAlignment="Stretch" VerticalAlignment="Top" Foreground="DeepSkyBlue" BorderBrush="Black" Click="tiltUpBtn_Click"/>

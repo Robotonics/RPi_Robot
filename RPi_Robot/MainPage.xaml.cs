@@ -37,15 +37,8 @@ namespace RPi_Robot
             stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            //InitRobot.noInit();
             // initialize GPIO components
             InitRobot.GpioInit();
-
-            // activate the IR sensor display
-            ObjectDetection();
-
-            // begin returning sonar data
-            GetDistance();
         }
 
         private void stopBtn_Click(object sender, RoutedEventArgs e)
@@ -71,6 +64,18 @@ namespace RPi_Robot
         private void revBtn_Click(object sender, RoutedEventArgs e)
         {
             ControlCmds(MotorCommands.Reverse);
+        }
+
+        private void IRObjBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // activate the IR sensor display
+            ObjectDetection();
+        }
+
+        private void sonarBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // begin returning sonar data
+            GetDistance();
         }
 
         /// <summary>
